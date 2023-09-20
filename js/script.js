@@ -199,20 +199,20 @@ function menuPagos(opcionPago, total) {
     menu();
 }
 
-function listadoProductos(productos, filtro) {
-    let productList = filterProd(productos, filtro);
-    let newProdList = '';
-    for (let producto of productList) {
-        newProdList += (productList.indexOf(producto)+1) + '.  ' + producto.name + " - $" + producto.price + "\n";
+function listadoProductos(productos) {
+    let newProdList = 'Para Comprar Ingrese el Número de el Artículo para Agregarlo al Carrito.\n\n';
+    for (let producto of productos) {
+        newProdList += (productos.indexOf(producto)+1) + '.  ' + producto.name + " - $" + producto.price + "\n";
     }
     return newProdList;
 }
 
 function filterProd(productos, filtro){
+    prodFilter = productos;
     switch (filtro){
         //Ordeno Alfabetico Ascendente
         case 'alfAsc':
-            return productos.sort((a,b)=> {
+            return prodFilter.sort((a,b)=> {
                 if (a.name < b.name) {
                     return -1;
                 }
@@ -223,7 +223,7 @@ function filterProd(productos, filtro){
             });
         //Ordeno Alfabetico Descendente
         case 'alfDsc':
-            return productos.sort((a,b)=> {
+            return prodFilter.sort((a,b)=> {
                 if (a.name > b.name) {
                     return -1;
                 }
@@ -233,15 +233,15 @@ function filterProd(productos, filtro){
                 return 0;
             });
         case 'priceAsc':
-            return productos.sort((a,b)=> a.price - b.price);
+            return prodFilter.sort((a,b)=> a.price - b.price);
         case 'priceDsc':
-            return productos.sort((a,b)=> b.price - a.price);
+            return prodFilter.sort((a,b)=> b.price - a.price);
         case 'category':
-            return productos.sort((a,b)=> a.category - b.category);
+            return prodFilter.sort((a,b)=> a.category - b.category);
         case 'filter':
             let minPrecio = prompt('Ingrese el precio Minimo que desea mostrar.');
             let maxPrecio = prompt('Ingrese el precio Maximo que desea mostrar.');
-            return productos.filter(function(prod){
+            return prodFilter.filter(function(prod){
                 return (prod.price >= minPrecio) && (prod.price <= maxPrecio);
             });
         default:
@@ -250,7 +250,59 @@ function filterProd(productos, filtro){
 }
 
 function menuListadoFiltro(productos){
-    prompt(listadoProductos(inventario, 'NaN'));
+    let listadoProd = filterProd(productos, 'NaN');
+    let listado = listadoProductos(listadoProd);
+    let filterMsg = listado + '\na. Para filtrar Alfabeticamente de forma Ascendente\nb. Para filtrar Alfabeticamente de forma Descendente\nc. Para filtrar por Precio de forma Ascendente\nd. Para filtrar por Precio de forma Descendente\ne. Para filtrar por Categoria\nf. Para filtrar por Rango de Precio\nx. Para Borrar los Filtros Aplicados';
+    let select = prompt(filterMsg);
+    while (select != -1){
+        switch (select) {
+            case 'a':
+                listadoProd = filterProd(listadoProd, 'alfAsc');
+                listado = listadoProductos(listadoProd);
+                filterMsg = listado + '\na. Para filtrar Alfabeticamente de forma Ascendente\nb. Para filtrar Alfabeticamente de forma Descendente\nc. Para filtrar por Precio de forma Ascendente\nd. Para filtrar por Precio de forma Descendente\ne. Para filtrar por Categoria\nf. Para filtrar por Rango de Precio\nx. Para Borrar los Filtros Aplicados';
+                break;
+            case 'b':
+                listadoProd = filterProd(listadoProd, 'alfDsc');
+                listado = listadoProductos(listadoProd);
+                filterMsg = listado + '\na. Para filtrar Alfabeticamente de forma Ascendente\nb. Para filtrar Alfabeticamente de forma Descendente\nc. Para filtrar por Precio de forma Ascendente\nd. Para filtrar por Precio de forma Descendente\ne. Para filtrar por Categoria\nf. Para filtrar por Rango de Precio\nx. Para Borrar los Filtros Aplicados';
+                break;
+            case 'c':
+                listadoProd = filterProd(listadoProd, 'priceAsc');
+                listado = listadoProductos(listadoProd);
+                filterMsg = listado + '\na. Para filtrar Alfabeticamente de forma Ascendente\nb. Para filtrar Alfabeticamente de forma Descendente\nc. Para filtrar por Precio de forma Ascendente\nd. Para filtrar por Precio de forma Descendente\ne. Para filtrar por Categoria\nf. Para filtrar por Rango de Precio\nx. Para Borrar los Filtros Aplicados';
+                break;
+            case 'd':
+                listadoProd = filterProd(listadoProd, 'priceDsc');
+                listado = listadoProductos(listadoProd);
+                filterMsg = listado + '\na. Para filtrar Alfabeticamente de forma Ascendente\nb. Para filtrar Alfabeticamente de forma Descendente\nc. Para filtrar por Precio de forma Ascendente\nd. Para filtrar por Precio de forma Descendente\ne. Para filtrar por Categoria\nf. Para filtrar por Rango de Precio\nx. Para Borrar los Filtros Aplicados';
+                break;
+            case 'e':
+                listadoProd = filterProd(listadoProd, 'category');
+                listado = listadoProductos(listadoProd);
+                filterMsg = listado + '\na. Para filtrar Alfabeticamente de forma Ascendente\nb. Para filtrar Alfabeticamente de forma Descendente\nc. Para filtrar por Precio de forma Ascendente\nd. Para filtrar por Precio de forma Descendente\ne. Para filtrar por Categoria\nf. Para filtrar por Rango de Precio\nx. Para Borrar los Filtros Aplicados';
+                break;
+            case 'f':
+                listadoProd = filterProd(listadoProd, 'filter');
+                listado = listadoProductos(listadoProd);
+                filterMsg = listado + '\na. Para filtrar Alfabeticamente de forma Ascendente\nb. Para filtrar Alfabeticamente de forma Descendente\nc. Para filtrar por Precio de forma Ascendente\nd. Para filtrar por Precio de forma Descendente\ne. Para filtrar por Categoria\nf. Para filtrar por Rango de Precio\nx. Para Borrar los Filtros Aplicados';
+                break;
+            case 'x':
+                listadoProd = filterProd(productos, 'NaN');
+                listado = listadoProductos(listadoProd);
+                filterMsg = listado + '\na. Para filtrar Alfabeticamente de forma Ascendente\nb. Para filtrar Alfabeticamente de forma Descendente\nc. Para filtrar por Precio de forma Ascendente\nd. Para filtrar por Precio de forma Descendente\ne. Para filtrar por Categoria\nf. Para filtrar por Rango de Precio\nx. Para Borrar los Filtros Aplicados';
+                break;
+            default:
+                if (!isNaN(select) && parseInt(select) < listadoProd.length+1){
+                    comprarProductos(listadoProd)
+                }
+                else
+                {
+                    alert('Ingrese una opcion Valida.')
+                }
+                break;
+        }
+        select = prompt(filterMsg);
+    }
 }
 
 function menuPrincipal() {
@@ -259,7 +311,7 @@ function menuPrincipal() {
     select = parseInt(select);
     switch (select) {
         case 1:
-            listadoProductos(inventario, '');
+            menuListadoFiltro(inventario);
             break;
         case 2:
             mostrarCarrito()
