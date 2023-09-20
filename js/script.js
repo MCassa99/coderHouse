@@ -1,43 +1,76 @@
 alert("¡Bienvenido a mi WEB E-Commerce!");
 let carrito = [];
-let precios = [];
 let subtotal;
 
+//agregar sort y filter y cositas--.
+
 // Se agregan en formato JSON los productos con sus respectivos precios.
-let productos = [
+let inventario = [
     {
-        name: "Taza de Café",
+        name: "BeanTastic SmartBrewer",
+        category: 'maquina',
+        price: 1250,
+    },
+    {
+        name: "AromaBlend MaxiBrew",
+        category: 'maquina',
+        price: 5000,
+    },
+    {
+        name: "CaféMatico ProXpress",
+        category: 'maquina',
+        price: 3250,
+    },
+    {
+        name: "AromaBliss UltraGrind",
+        category: 'maquina',
+        price: 2500,
+    },
+    {
+        name: "Espresso Intenso",
+        category: 'capsula',
         price: 125,
     },
     {
-        name: "Cápsula de Café",
-        price: 50,
+        name: "Cappuccino Caramelo",
+        category: 'capsula',
+        price: 150,
     },
     {
-        name: "Cafetera",
-        price: 325,
+        name: "Café Menta Delicia",
+        category: 'capsula',
+        price: 175,
+    },
+    {
+        name: "Descafeinado Delicado",
+        category: 'capsula',
+        price: 200,
     },
 ];
 
-// Muestra lista de Productos
-function mostrarListaProductos(o, lista) {
+function agregarProductos(lista) {
     let productList;
-    if (o == 'b') {
-        productList = "¿Que producto desea borrar?\n\n";
-        for (let i = 0; i < carrito.length; i++) {
-            productList += i + '. ' + carrito[i] + " - $" + precios[i] + "\n";
-        }
-    } else {
-        productList = "¿Que producto desea comprar?\n\n";
-        for (let producto of lista) {
-            productList += lista.indexOf(producto) + '. ' + producto.name + " - $" + producto.price + "\n";
-        }
+    productList = "¿Que producto desea comprar?\n\n";
+    productList += listadoProductos(lista);
+    productList += '\n-1. Para salir al menu anterior.';
+    comprarProductos(lista);
+    menu();
+}
+
+// Muestra lista de Productos que estan el carrito si este posee uno y pregunta cual desea borrar.w
+function quitarProductos(carrito) {
+    let productList;
+    productList = "¿Que producto desea borrar?\n\n";
+    for (let i = 0; i < carrito.length; i++) {
+        productList += i + '. ' + carrito[i] + " - $" + precios[i] + "\n";
     }
     productList += '\n-1. Para salir al menu anterior.';
-    if (o == 'b') {
-        borrarCarrito(productList);
+    if (carrito.length > 0) {
+        borrarProductos(lista);
+        menu();
     } else {
-        agregarCarrito(productList);
+        alert('El carrito aun no posee articulos.');
+        menu();
     }
 }
 
@@ -47,9 +80,9 @@ function comprarProductos(lista) {
     while (opt != -1) {
         opt = prompt(lista);
         opt = parseInt(opt);
-        if (opt <= productos.length && opt >= 0) {
-            carrito.push(productos[opt].name);
-            precios.push(productos[opt].price);
+        if (opt <= inventario.length && opt >= 0) {
+            carrito.push(inventario[opt].name);
+            precios.push(inventario[opt].price);
         } else if (opt == -1) {
             alert('El carrito fue cargado correctamente.');
         } else {
@@ -64,7 +97,7 @@ function borrarProductos(lista) {
     while (opt != -1) {
         opt = prompt(lista);
         opt = parseInt(opt);
-        if (opt <= productos.length && opt >= 0) {
+        if (opt <= inventario.length && opt >= 0) {
             carrito.splice(opt, 1)[0];
             precios.splice(opt, 1)[0];
             mostrarListaProductos('b', carrito)
@@ -73,6 +106,24 @@ function borrarProductos(lista) {
         } else {
             alert('El numero de producto seleccionado no existe.');
         }
+    }
+}
+
+function menuCarrito(carrito) {
+    let menuTxtCarrito = '\n1. Mostrar el Carrito.\n2. Borrar Producto del Carrito.\n3. Comprar.\n-1. Para salir a el Menu Principal.';
+    let select = prompt(menuTxtCarrito);
+    switch (select) {
+        case 1:
+            mostrarCarrito();
+            break;
+        case 2:
+            mostrarCarrito()
+            break;
+        case 3:
+            quitarProductos(carrito)
+            break;
+        default:
+            break;
     }
 }
 
@@ -89,23 +140,6 @@ function mostrarCarrito() {
     carritoList += '\nSubtotal:   $' + subtotal + '\n IVA:        $' + subtotal * 0.22 + '\nTotal:      $' + subtotal * 1.22;
     alert(carritoList);
     menu();
-}
-
-// Agrega Proguctos a Carrito
-function agregarCarrito(lista) {
-    comprarProductos(lista);
-    menu();
-}
-
-// Borra productos de el Carrito, si tiene
-function borrarCarrito(lista) {
-    if (carrito.length > 0) {
-        borrarProductos(lista);
-        menu();
-    } else {
-        alert('El carrito aun no posee articulos.');
-        menu();
-    }
 }
 
 function botonPagar() {
@@ -135,7 +169,7 @@ function botonPagar() {
     menuPagos(opcionPago, total);
 }
 
-function menuPagos(opcionPago, total){
+function menuPagos(opcionPago, total) {
     while (opcionPago == 1 || opcionPago == 2) {
         // Procesa el pago
         switch (opcionPago) {
@@ -143,7 +177,7 @@ function menuPagos(opcionPago, total){
                 // Pagar con efectivo
                 monto = prompt("¿Con que monto pagarás?");
                 if (monto > total) {
-                    alert("Pago realizado con éxito.\n" + "Se te dovolverán " + (monto-total) + " pesos.")
+                    alert("Pago realizado con éxito.\n" + "Se te devolverán " + (monto - total) + " pesos.")
                     opcionPago = 0;
                 } else {
                     alert("Intenta ingresar un monto mayor a lo que debes pagar.")
@@ -165,19 +199,73 @@ function menuPagos(opcionPago, total){
     menu();
 }
 
-function menu() {
-    menutxt = '1. Comprar Productos\n2. Ver Carrito\n3. Quitar Productos de Carrito\n4. Pagar\n';
-    var select = prompt(menutxt);
+function listadoProductos(productos, filtro) {
+    let productList = filterProd(productos, filtro);
+    let newProdList = '';
+    for (let producto of productList) {
+        newProdList += (productList.indexOf(producto)+1) + '.  ' + producto.name + " - $" + producto.price + "\n";
+    }
+    return newProdList;
+}
+
+function filterProd(productos, filtro){
+    switch (filtro){
+        //Ordeno Alfabetico Ascendente
+        case 'alfAsc':
+            return productos.sort((a,b)=> {
+                if (a.name < b.name) {
+                    return -1;
+                }
+                if (a.name > b.name) {
+                    return 1;
+                }
+                return 0;
+            });
+        //Ordeno Alfabetico Descendente
+        case 'alfDsc':
+            return productos.sort((a,b)=> {
+                if (a.name > b.name) {
+                    return -1;
+                }
+                if (a.name < b.name) {
+                    return 1;
+                }
+                return 0;
+            });
+        case 'priceAsc':
+            return productos.sort((a,b)=> a.price - b.price);
+        case 'priceDsc':
+            return productos.sort((a,b)=> b.price - a.price);
+        case 'category':
+            return productos.sort((a,b)=> a.category - b.category);
+        case 'filter':
+            let minPrecio = prompt('Ingrese el precio Minimo que desea mostrar.');
+            let maxPrecio = prompt('Ingrese el precio Maximo que desea mostrar.');
+            return productos.filter(function(prod){
+                return (prod.price >= minPrecio) && (prod.price <= maxPrecio);
+            });
+        default:
+            return productos;
+    }
+}
+
+function menuListadoFiltro(productos){
+    prompt(listadoProductos(inventario, 'NaN'));
+}
+
+function menuPrincipal() {
+    let menutxt = '\n1. Mostrar el Listado de Productos.\n2. Ver Carrito.\n3. Gestión de Cuenta.\n-1. Para salir de el Programa.';
+    let select = prompt(menutxt);
     select = parseInt(select);
     switch (select) {
         case 1:
-            mostrarListaProductos('a', productos);
+            listadoProductos(inventario, '');
             break;
         case 2:
             mostrarCarrito()
             break;
         case 3:
-            mostrarListaProductos('b', carrito);
+            borrarProductos(carrito)
             break;
         case 4:
             botonPagar()
@@ -187,4 +275,4 @@ function menu() {
     }
 }
 
-menu();
+menuPrincipal();
