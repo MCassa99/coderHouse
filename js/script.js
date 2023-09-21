@@ -1,6 +1,11 @@
 alert("¡Bienvenido a mi WEB E-Commerce!");
+const Error404 = 'Opción no encontrada, intente de nuevo.';
+const ErrorPago = 'Contraseña Invalida.'
 let carrito = [];
+let precios = [];
 let subtotal;
+let username = '';
+let password = '';
 
 //agregar sort y filter y cositas--.
 
@@ -48,47 +53,28 @@ let inventario = [
     },
 ];
 
-function agregarProductos(lista) {
-    let productList;
-    productList = "¿Que producto desea comprar?\n\n";
-    productList += listadoProductos(lista);
-    productList += '\n-1. Para salir al menu anterior.';
-    comprarProductos(lista);
-    menu();
-}
-
 // Muestra lista de Productos que estan el carrito si este posee uno y pregunta cual desea borrar.w
-function quitarProductos(carrito) {
+function quitarProductos() {
     let productList;
     productList = "¿Que producto desea borrar?\n\n";
     for (let i = 0; i < carrito.length; i++) {
-        productList += i + '. ' + carrito[i] + " - $" + precios[i] + "\n";
+        productList += i+1 + '. ' + carrito[i] + " - $" + precios[i] + "\n";
     }
     productList += '\n-1. Para salir al menu anterior.';
     if (carrito.length > 0) {
-        borrarProductos(lista);
-        menu();
+        borrarProductos(productList);
+        menuCarrito();
     } else {
         alert('El carrito aun no posee articulos.');
-        menu();
+        menuCarrito();
     }
 }
 
 // Usa la lista para agregar los productos al carrito.
-function comprarProductos(lista) {
-    let opt = 0;
-    while (opt != -1) {
-        opt = prompt(lista);
-        opt = parseInt(opt);
-        if (opt <= inventario.length && opt >= 0) {
-            carrito.push(inventario[opt].name);
-            precios.push(inventario[opt].price);
-        } else if (opt == -1) {
-            alert('El carrito fue cargado correctamente.');
-        } else {
-            alert('El numero de producto seleccionado no existe.');
-        }
-    }
+function comprarProductos(opt, lista) {
+    carrito.push(lista[opt].name);
+    precios.push(lista[opt].price);
+    alert('El carrito fue cargado correctamente.');
 }
 
 // Usa una lista para borrar los productos al carrito.
@@ -97,10 +83,10 @@ function borrarProductos(lista) {
     while (opt != -1) {
         opt = prompt(lista);
         opt = parseInt(opt);
-        if (opt <= inventario.length && opt >= 0) {
-            carrito.splice(opt, 1)[0];
-            precios.splice(opt, 1)[0];
-            mostrarListaProductos('b', carrito)
+        if (opt-1 <= lista.length && opt-1 >= 0) {
+            carrito.splice(opt-1, 1)[0];
+            precios.splice(opt-1, 1)[0];
+            quitarProductos();
         } else if (opt == -1) {
             alert('El carrito fue actualizado correctamente.');
         } else {
@@ -109,22 +95,27 @@ function borrarProductos(lista) {
     }
 }
 
-function menuCarrito(carrito) {
-    let menuTxtCarrito = '\n1. Mostrar el Carrito.\n2. Borrar Producto del Carrito.\n3. Comprar.\n-1. Para salir a el Menu Principal.';
-    let select = prompt(menuTxtCarrito);
-    switch (select) {
-        case 1:
-            mostrarCarrito();
-            break;
-        case 2:
-            mostrarCarrito()
-            break;
-        case 3:
-            quitarProductos(carrito)
-            break;
-        default:
-            break;
+function menuCarrito() {
+    let menuTxtCarrito = '1. Mostrar el Carrito.\n2. Borrar Producto del Carrito.\n3. Comprar.\n-1. Para salir a el Menu Principal.';
+    let selectCart = prompt(menuTxtCarrito);
+    while (selectCart != -1){
+        switch (parseInt(selectCart)) {
+            case 1:
+                mostrarCarrito();
+                break;
+            case 2:
+                quitarProductos();
+                break;
+            case 3:
+                botonPagar();
+                break;
+            default:
+                alert(Error404)
+                break;
+        }
+        selectCart = prompt(menuTxtCarrito);
     }
+    menuPrincipal();
 }
 
 //Muestra el carrito actual
@@ -139,13 +130,13 @@ function mostrarCarrito() {
     }
     carritoList += '\nSubtotal:   $' + subtotal + '\n IVA:        $' + subtotal * 0.22 + '\nTotal:      $' + subtotal * 1.22;
     alert(carritoList);
-    menu();
+    menuCarrito();
 }
 
 function botonPagar() {
     if (carrito.length <= 0) {
         alert('No hay nada que pagar!');
-        menu();
+        menuCarrito();
     }
     // Calcula el subtotal y el total
     let subtotal = 0;
@@ -163,40 +154,57 @@ function botonPagar() {
 
     // Muestra el menú de pago
     carritoList += `\n\n¿Cómo desea pagar?\n\n1. Efectivo\n2. Tarjeta\n`;
-    let opcionPago = prompt(carritoList);
-    opcionPago = parseInt(opcionPago);
+    
 
-    menuPagos(opcionPago, total);
+    menuPagos(carritoList, total);
 }
 
-function menuPagos(opcionPago, total) {
-    while (opcionPago == 1 || opcionPago == 2) {
-        // Procesa el pago
-        switch (opcionPago) {
-            case 1:
-                // Pagar con efectivo
-                monto = prompt("¿Con que monto pagarás?");
-                if (monto > total) {
-                    alert("Pago realizado con éxito.\n" + "Se te devolverán " + (monto - total) + " pesos.")
+function menuPagos(listaCarrito, total) {
+    let opcionPago = prompt(listaCarrito);
+    opcionPago = parseInt(opcionPago);
+    if (login()) {
+        while (opcionPago == 1 || opcionPago == 2) {
+            // Procesa el pago
+            switch (opcionPago) {
+                case 1:
+                    // Pagar con efectivo
+                    monto = prompt("¿Con que monto pagarás?");
+                    if (monto > total) {
+                        let passAcept = prompt ('Ingrese su contraseña');
+                        while (passAcept != password){
+                            alert(ErrorPago)
+                            passAcept = prompt ('Ingrese su contraseña');
+                        }
+                        alert("Pago realizado con éxito.\n" + "Se te devolverán " + (monto - total) + " pesos.")
+                        carrito = [];
+                        precios = [];
+                        opcionPago = 0;
+                    } else {
+                        alert("Intenta ingresar un monto mayor a lo que debes pagar.")
+                    }
+                    break;
+                case 2:
+                    // Pagar con tarjeta
+                    let passAcept = prompt ('Ingrese su contraseña');
+                    while (passAcept != password){
+                        alert(ErrorPago)
+                        passAcept = prompt ('Ingrese su contraseña');
+                    }
+                    alert("Pago realizado con éxito.");
+                    carrito = [];
+                    precios = [];
                     opcionPago = 0;
-                } else {
-                    alert("Intenta ingresar un monto mayor a lo que debes pagar.")
-                }
-                break;
-            case 2:
-                // Pagar con tarjeta
-                alert("Pago realizado con éxito.");
-                opcionPago = 0;
-                break;
-            default:
-                // Opción inválida
-                alert("Opción inválida.");
-                break;
+                    break;
+                default:
+                    // Opción inválida
+                    alert("Opción inválida.");
+                    break;
+            }
         }
+    } else {
+        alert('Usted no se ha Logeado, Por Favor Logearse Antes de Continuar');
+        gestionCuentas('pago');
     }
-    carrito = [];
-    precios = [];
-    menu();
 }
 
 function listadoProductos(productos) {
@@ -252,34 +260,34 @@ function filterProd(productos, filtro){
 function menuListadoFiltro(productos){
     let listadoProd = filterProd(productos, 'NaN');
     let listado = listadoProductos(listadoProd);
-    let filterMsg = listado + '\na. Para filtrar Alfabeticamente de forma Ascendente\nb. Para filtrar Alfabeticamente de forma Descendente\nc. Para filtrar por Precio de forma Ascendente\nd. Para filtrar por Precio de forma Descendente\ne. Para filtrar por Categoria\nf. Para filtrar por Rango de Precio\nx. Para Borrar los Filtros Aplicados';
+    let filterMsg = listado + '\na. Para filtrar Alfabeticamente de forma Ascendente.\nb. Para filtrar Alfabeticamente de forma Descendente.\nc. Para filtrar por Precio de forma Ascendente.\nd. Para filtrar por Precio de forma Descendente.\ne. Para filtrar por Categoria.\nf. Para filtrar por Rango de Precio.\nx. Para Borrar los Filtros Aplicados.\n\n-1. Salir al Menú Principal.';
     let select = prompt(filterMsg);
     while (select != -1){
         switch (select) {
             case 'a':
                 listadoProd = filterProd(listadoProd, 'alfAsc');
                 listado = listadoProductos(listadoProd);
-                filterMsg = listado + '\na. Para filtrar Alfabeticamente de forma Ascendente\nb. Para filtrar Alfabeticamente de forma Descendente\nc. Para filtrar por Precio de forma Ascendente\nd. Para filtrar por Precio de forma Descendente\ne. Para filtrar por Categoria\nf. Para filtrar por Rango de Precio\nx. Para Borrar los Filtros Aplicados';
+                filterMsg = listado + '\na. Para filtrar Alfabeticamente de forma Ascendente.\nb. Para filtrar Alfabeticamente de forma Descendente.\nc. Para filtrar por Precio de forma Ascendente.\nd. Para filtrar por Precio de forma Descendente.\ne. Para filtrar por Categoria.\nf. Para filtrar por Rango de Precio.\nx. Para Borrar los Filtros Aplicados.\n\n-1. Salir al Menú Principal.';
                 break;
             case 'b':
                 listadoProd = filterProd(listadoProd, 'alfDsc');
                 listado = listadoProductos(listadoProd);
-                filterMsg = listado + '\na. Para filtrar Alfabeticamente de forma Ascendente\nb. Para filtrar Alfabeticamente de forma Descendente\nc. Para filtrar por Precio de forma Ascendente\nd. Para filtrar por Precio de forma Descendente\ne. Para filtrar por Categoria\nf. Para filtrar por Rango de Precio\nx. Para Borrar los Filtros Aplicados';
+                filterMsg = listado + '\na. Para filtrar Alfabeticamente de forma Ascendente.\nb. Para filtrar Alfabeticamente de forma Descendente.\nc. Para filtrar por Precio de forma Ascendente.\nd. Para filtrar por Precio de forma Descendente.\ne. Para filtrar por Categoria.\nf. Para filtrar por Rango de Precio.\nx. Para Borrar los Filtros Aplicados.\n\n-1. Salir al Menú Principal.';
                 break;
             case 'c':
                 listadoProd = filterProd(listadoProd, 'priceAsc');
                 listado = listadoProductos(listadoProd);
-                filterMsg = listado + '\na. Para filtrar Alfabeticamente de forma Ascendente\nb. Para filtrar Alfabeticamente de forma Descendente\nc. Para filtrar por Precio de forma Ascendente\nd. Para filtrar por Precio de forma Descendente\ne. Para filtrar por Categoria\nf. Para filtrar por Rango de Precio\nx. Para Borrar los Filtros Aplicados';
+                filterMsg = listado + '\na. Para filtrar Alfabeticamente de forma Ascendente.\nb. Para filtrar Alfabeticamente de forma Descendente.\nc. Para filtrar por Precio de forma Ascendente.\nd. Para filtrar por Precio de forma Descendente.\ne. Para filtrar por Categoria.\nf. Para filtrar por Rango de Precio.\nx. Para Borrar los Filtros Aplicados.\n\n-1. Salir al Menú Principal.';
                 break;
             case 'd':
                 listadoProd = filterProd(listadoProd, 'priceDsc');
                 listado = listadoProductos(listadoProd);
-                filterMsg = listado + '\na. Para filtrar Alfabeticamente de forma Ascendente\nb. Para filtrar Alfabeticamente de forma Descendente\nc. Para filtrar por Precio de forma Ascendente\nd. Para filtrar por Precio de forma Descendente\ne. Para filtrar por Categoria\nf. Para filtrar por Rango de Precio\nx. Para Borrar los Filtros Aplicados';
+                filterMsg = listado + '\na. Para filtrar Alfabeticamente de forma Ascendente.\nb. Para filtrar Alfabeticamente de forma Descendente.\nc. Para filtrar por Precio de forma Ascendente.\nd. Para filtrar por Precio de forma Descendente.\ne. Para filtrar por Categoria.\nf. Para filtrar por Rango de Precio.\nx. Para Borrar los Filtros Aplicados.\n\n-1. Salir al Menú Principal.';
                 break;
             case 'e':
                 listadoProd = filterProd(listadoProd, 'category');
                 listado = listadoProductos(listadoProd);
-                filterMsg = listado + '\na. Para filtrar Alfabeticamente de forma Ascendente\nb. Para filtrar Alfabeticamente de forma Descendente\nc. Para filtrar por Precio de forma Ascendente\nd. Para filtrar por Precio de forma Descendente\ne. Para filtrar por Categoria\nf. Para filtrar por Rango de Precio\nx. Para Borrar los Filtros Aplicados';
+                filterMsg = listado + '\na. Para filtrar Alfabeticamente de forma Ascendente.\nb. Para filtrar Alfabeticamente de forma Descendente.\nc. Para filtrar por Precio de forma Ascendente.\nd. Para filtrar por Precio de forma Descendente.\ne. Para filtrar por Categoria.\nf. Para filtrar por Rango de Precio.\nx. Para Borrar los Filtros Aplicados.\n\n-1. Salir al Menú Principal.';
                 break;
             case 'f':
                 listadoProd = filterProd(listadoProd, 'filter');
@@ -287,26 +295,65 @@ function menuListadoFiltro(productos){
                 filterMsg = listado + '\na. Para filtrar Alfabeticamente de forma Ascendente\nb. Para filtrar Alfabeticamente de forma Descendente\nc. Para filtrar por Precio de forma Ascendente\nd. Para filtrar por Precio de forma Descendente\ne. Para filtrar por Categoria\nf. Para filtrar por Rango de Precio\nx. Para Borrar los Filtros Aplicados';
                 break;
             case 'x':
-                listadoProd = filterProd(productos, 'NaN');
+                listadoProd = filterProd(inventario, 'NaN');
                 listado = listadoProductos(listadoProd);
-                filterMsg = listado + '\na. Para filtrar Alfabeticamente de forma Ascendente\nb. Para filtrar Alfabeticamente de forma Descendente\nc. Para filtrar por Precio de forma Ascendente\nd. Para filtrar por Precio de forma Descendente\ne. Para filtrar por Categoria\nf. Para filtrar por Rango de Precio\nx. Para Borrar los Filtros Aplicados';
+                filterMsg = listado + '\na. Para filtrar Alfabeticamente de forma Ascendente.\nb. Para filtrar Alfabeticamente de forma Descendente.\nc. Para filtrar por Precio de forma Ascendente.\nd. Para filtrar por Precio de forma Descendente.\ne. Para filtrar por Categoria.\nf. Para filtrar por Rango de Precio.\nx. Para Borrar los Filtros Aplicados.\n\n-1. Salir al Menú Principal.';
                 break;
             default:
-                if (!isNaN(select) && parseInt(select) < listadoProd.length+1){
-                    comprarProductos(listadoProd)
+                if (!isNaN(select)){
+                    select -= 1;
+                    if (select <= listadoProd.length && select >= 0) {
+                        comprarProductos(select, listadoProd);
+                        menuListadoFiltro(listadoProd);
+                    }
                 }
-                else
-                {
-                    alert('Ingrese una opcion Valida.')
-                }
+                alert(Error404)
                 break;
         }
         select = prompt(filterMsg);
     }
+    menuPrincipal();
+}
+
+function gestionCuentas(post){
+    let txtCuentas = '';
+    if (login()) {
+        txtCuentas = 'Sesion Iniciada.\nNombre de Usuario: '+ username +'\n\n1. Para Cerrar Sesión\n-1. Para salir a el Menu Principal.';
+        let cerrarSesion = prompt(txtCuentas);
+        cerrarSesion = parseInt(cerrarSesion);
+        switch (cerrarSesion) {
+            case 1:
+                username = '';
+                password = '';
+                break;
+            default:
+                alert(Error404);
+                gestionCuentas();
+                break;
+        }
+        menuPrincipal();
+    } else {
+        txtCuentas = 'Sesion NO Iniciada.\nIngrese Nombre de Usuario y Contraseña.';
+        alert(txtCuentas);
+        username = prompt('Ingrese Nombre de Usuario');
+        password = prompt('Ingrese Contraseña');
+        while (password == ''){
+            alert('No puede ingresar una contraseña vacia.')
+            password = prompt('Ingrese Contraseña');
+        }
+        if (post == 'pago'){
+            botonPagar();
+        }
+        menuPrincipal();
+    }
+}
+
+function login(){
+    return (username != '');
 }
 
 function menuPrincipal() {
-    let menutxt = '\n1. Mostrar el Listado de Productos.\n2. Ver Carrito.\n3. Gestión de Cuenta.\n-1. Para salir de el Programa.';
+    let menutxt = '1. Mostrar el Listado de Productos.\n2. Ver Carrito.\n3. Gestión de Cuenta.';
     let select = prompt(menutxt);
     select = parseInt(select);
     switch (select) {
@@ -314,17 +361,16 @@ function menuPrincipal() {
             menuListadoFiltro(inventario);
             break;
         case 2:
-            mostrarCarrito()
+            menuCarrito()
             break;
         case 3:
-            borrarProductos(carrito)
-            break;
-        case 4:
-            botonPagar()
+            gestionCuentas()
             break;
         default:
+            alert(Error404)
             break;
     }
 }
-
-menuPrincipal();
+while(true){
+    menuPrincipal();
+}
